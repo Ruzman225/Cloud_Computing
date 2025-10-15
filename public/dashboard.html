@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teacher Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="dashboard-container">
+    <div class="header">
+      <h2>Teacher Dashboard</h2>
+      <div>
+        <button id="sign-in-btn">Sign In</button>
+        <button id="sign-out-btn">Sign Out</button>
+        <button id="logout-btn" class="logout">Logout</button>
+      </div>
+    </div>
+    <p id="status-message"></p>
+
+    <table id="teachers-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Status</th>
+          <th>Hours Today</th>
+          <th>Grade</th>
+        </tr>
+      </thead>
+      <tbody>
+        </tbody>
+    </table>
+
+    <div class="form-container" style="margin-top: 2rem;">
+        <h3>Update Your Grade</h3>
+        <form id="teacher-form">
+          <input type="text" id="teacher-grade" placeholder="New Grade (e.g., A+)" required>
+          <button type="submit">Save Grade</button>
+        </form>
+    </div>
+  </div>
+
+  <script>
+    const token = localStorage.getItem('authToken');
+    const statusMessage = document.getElementById('status-message');
+
+    // 1. Protect the Route: If no token exists, redirect to the login page.
+    if (!token) {
+      window.location.href = '/login.html';
+    }
+
+    // 2. Main function to fetch data and render the table.
+    async function fetchTeacherData() {
+      try {
+        const response = await fetch('/api/teachers', {
+          headers: { 'auth-token': token }
+        });
+
+        if (response.status === 401) {
+          window.location.href = '/login.html'; // Token is invalid or expired
+          return;
+        }
+        if (!response.ok) {
+          throw new Error('Failed to fetch data');
+        }
+
+        const teachers = await response.json();
+        const tableBody = document.querySelector('#teachers-table tbody');
+        tableBody.innerHTML = ''; // Clear the table before adding new data
+
+        teachers.forEach(teacher => {
+          const lastSession = teacher.sessions[teacher.sessions.length - 1];
+          const status = (lastSession && !lastSession.signOut) ? '🟢 Signed In' : '🔴 Signed Out';
+
+          // Calculate hours worked specifically for today
+          const today = new Date().toDateString();
+          const hoursToday = teacher.sessions
+            .filter(s => s.signOut && new Date(s.signIn).toDateString() === today)
+            .reduce((total, session) => total + (session.hoursWorked || 0), 0);
+
+          const row = `
+            <tr>
+              <td>${teacher.name}</td>
+              <td>${teacher.email}</td>
+              <td>${status}</td>
+              <td>${hoursToday.toFixed(2)}</td>
+              <td>${teacher.grade}</td>
+            </tr>
+          `;
+          tableBody.innerHTML += row;
+        });
+      } catch (error) {
+        statusMessage.textContent = error.message;
+      }
+    }
+
+    // 3. Event Listeners for all buttons and forms.
+    document.getElementById('sign-in-btn').addEventListener('click', async () => {
+      await fetch('/api/teachers/signin', { method: 'POST', headers: { 'auth-token': token } });
+      statusMessage.textContent = "You have signed in.";
+      fetchTeacherData();
+    });
+
+    document.getElementById('sign-out-btn').addEventListener('click', async () => {
+      await fetch('/api/teachers/signout', { method: 'POST', headers: { 'auth-token': token } });
+      statusMessage.textContent = "You have signed out.";
+      fetchTeacherData();
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      localStorage.removeItem('authToken');
+      window.location.href = '/login.html';
+    });
+
+    document.getElementById('teacher-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const grade = document.getElementById('teacher-grade').value;
+      
+      try {
+        const response = await fetch('/api/teachers/self', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'auth-token': token
+          },
+          body: JSON.stringify({ grade })
+        });
+        if (!response.ok) throw new Error('Failed to update grade');
+        statusMessage.textContent = 'Grade updated successfully!';
+        document.getElementById('teacher-form').reset(); // Clear the form
+        fetchTeacherData();
+      } catch (error) {
+        statusMessage.textContent = error.message;
+      }
+    });
+
+    // 4. Initial call to load data when the page opens.
+    fetchTeacherData();
+  </script>
+</body>
+</html>

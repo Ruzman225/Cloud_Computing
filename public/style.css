@@ -1,0 +1,102 @@
+/* Dashboard Styles */
+.dashboard-container {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 1000px;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+th, td {
+  border: 1px solid #ddd;
+  padding: 0.75rem;
+  text-align: left;
+}
+th {
+  background-color: #f9f9f9;
+}
+.logout {
+  background-color: #dc3545;
+}
+#status-message {
+  text-align: center;
+  color: #007bff;
+  min-height: 20px;
+}
+
+/* Signup page styles */
+.signup-page {
+  /* Soft gradient background for the whole page */
+  background: linear-gradient(135deg, #f0f7ff 0%, #e8f4ff 50%, #f7fbff 100%);
+  min-height: 100vh; /* ensure it covers full viewport height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.signup-page h1 {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #08306b; /* dark blue */
+  font-size: 3rem; /* larger heading */
+  margin: 0 0 1rem 0;
+  letter-spacing: 0.5px;
+}
+
+/* Make the heading responsive on small screens */
+@media (max-width: 480px) {
+  .signup-page h1 {
+    font-size: 2rem;
+  }
+}
+
+/* Login page styles - mirror signup look */
+.login-page {
+  background: linear-gradient(135deg, #f0f7ff 0%, #e8f4ff 50%, #f7fbff 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-page .form-container {
+  background: rgba(255, 255, 255, 0.92);
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(3, 48, 107, 0.08);
+  width: 90%;
+  max-width: 420px;
+}
+
+.login-page h2 {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #08306b;
+  font-size: 2.25rem;
+  margin: 0 0 1rem 0;
+  text-align: center;
+}
+
+.login-page h1 {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #08306b;
+  font-size: 3rem; /* Increased size */
+  margin: 0 0 1rem 0;
+  letter-spacing: 0.5px;
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .login-page h2 {
+    font-size: 1.5rem;
+  }
+}
